@@ -3,12 +3,20 @@ package mercury.connect.sdk;
 import java.util.Map;
 import java.util.Optional;
 
-public interface DAppStorage<K,V> {
-    Optional<V> get(K key);
+public class DAppStorage<K, V> {
+    public Optional<V> get(K key) {
+        return Optional.empty();
+    }
 
-    Map<K,Optional<V>> getAll(K... keys);
+    public Map<K, Optional<V>> getAll(K... keys) {
+        return null;
+    }
 
-    boolean put(K key, V value);
+    public boolean put(K key, V value) {
+        return false;
+    }
 
-    boolean remove(K key);
+    public boolean remove(K key) {
+        return false;
+    }
 }

@@ -3,12 +3,20 @@ package mercury.connect.sdk;
 import java.util.List;
 import java.util.UUID;
 
-public interface DAppSession {
-    List<DAppContact> getContacts();
+public class DAppSession {
+    public List<DAppContact> getContacts() {
+        return null;
+    }
 
-    void initiateContact(UUID withProfileId);
+    public void initiateContact(UUID withProfileId) {
 
-    void registerEventReceiver(Event[] filter, DAppEventReceiver receiver);
+    }
 
-    DAppStorage getStorage();
+    public void registerEventReceiver(Event[] filter, DAppEventReceiver receiver) {
+
+    }
+
+    public DAppStorage getStorage() {
+        return null;
+    }
 }

@@ -2,10 +2,16 @@ package mercury.connect.sdk;
 
 import java.util.UUID;
 
-public interface DAppContact {
-    UUID getProfileId();
+public class DAppContact {
+    public UUID getProfileId() {
+        return null;
+    }
 
-    byte[] getRelationProof();
+    public byte[] getRelationProof() {
+        return new byte[0];
+    }
 
-    void call(String initPayload);
+    public void call(String initPayload) {
+
+    }
 }

@@ -19,6 +19,39 @@
         </license>
     </licenses>
 
+    <properties>
+        <android.platform>28</android.platform>
+        <mockito.version>2.23.0</mockito.version>
+        <junit.version>5.3.1</junit.version>
+        <eventbus.version>3.1.1</eventbus.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${android.platform}</version>
+            <scope>system</scope>
+            <systemPath>${user.home}/Library/Android/sdk/platforms/android-${android.platform}/android.jar</systemPath>
+        </dependency>
+
+        <!-- TESTING -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

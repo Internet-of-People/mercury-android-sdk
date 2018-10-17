@@ -3,10 +3,16 @@ package mercury.connect.sdk;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface DAppCall {
-    byte[] getRelationProof();
+public class DAppCall {
+    public byte[] getRelationProof() {
+        return new byte[0];
+    }
 
-    InputStream getInputStream();
+    public InputStream getInputStream() {
+        return null;
+    }
 
-    OutputStream getOutputStream();
+    public OutputStream getOutputStream() {
+        return null;
+    }
 }
