@@ -5,18 +5,18 @@ import java.util.Optional;
 
 public class DAppStorage<K, V> {
     public Optional<V> get(K key) {
-        return Optional.empty();
+        throw new UnsupportedOperationException();
     }
 
     public Map<K, Optional<V>> getAll(K... keys) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public boolean put(K key, V value) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     public boolean remove(K key) {
-        return false;
+        throw new UnsupportedOperationException();
     }
 }

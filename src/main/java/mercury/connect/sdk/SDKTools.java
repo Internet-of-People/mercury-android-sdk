@@ -11,7 +11,7 @@ import android.provider.Settings;
 
 import java.util.Objects;
 
-public class Setup {
+public class SDKTools {
     private static final String ASKED_BATTERY_OPTIMIZTAIONS_PREF = "askedBatteryOptimizations";
 
     public static void askForBatteryOptinmizationOptOut(PowerManager powerManager, Context context) {

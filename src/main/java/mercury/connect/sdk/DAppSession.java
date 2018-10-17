@@ -5,18 +5,18 @@ import java.util.UUID;
 
 public class DAppSession {
     public List<DAppContact> getContacts() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public void initiateContact(UUID withProfileId) {
-
+        throw new UnsupportedOperationException();
     }
 
     public void registerEventReceiver(Event[] filter, DAppEventReceiver receiver) {
-
+        throw new UnsupportedOperationException();
     }
 
     public DAppStorage getStorage() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }

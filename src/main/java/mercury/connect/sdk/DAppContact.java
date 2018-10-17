@@ -4,14 +4,14 @@ import java.util.UUID;
 
 public class DAppContact {
     public UUID getProfileId() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public byte[] getRelationProof() {
-        return new byte[0];
+        throw new UnsupportedOperationException();
     }
 
     public void call(String initPayload) {
-
+        throw new UnsupportedOperationException();
     }
 }

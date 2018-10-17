@@ -46,7 +46,7 @@ public class DAppEndpoint {
     }
 
     public boolean isConnected() {
-        return false;
+        throw new UnsupportedOperationException();
     }
 
     private void scheduleAndService() {

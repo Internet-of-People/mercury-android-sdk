@@ -5,14 +5,14 @@ import java.io.OutputStream;
 
 public class DAppCall {
     public byte[] getRelationProof() {
-        return new byte[0];
+        throw new UnsupportedOperationException();
     }
 
     public InputStream getInputStream() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     public OutputStream getOutputStream() {
-        return null;
+        throw new UnsupportedOperationException();
     }
 }
