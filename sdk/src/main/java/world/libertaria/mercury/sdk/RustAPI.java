@@ -12,4 +12,8 @@ public class RustAPI {
     public void jniStop() {
         throw new UnsupportedOperationException();
     }
+
+    public void jniPing() {
+
+    }
 }

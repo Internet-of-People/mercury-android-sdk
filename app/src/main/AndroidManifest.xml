@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="world.libertaria.mercury.mercuryconnectsdk">
+    package="world.libertaria.mercury.example">
 
     <application
         android:allowBackup="false"
@@ -11,17 +11,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".example.MainActivity">
+        <activity android:name="world.libertaria.mercury.example.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
 
-                <!-- YOU NEED TO INCLUDE THESE BELOW -->
-                <action android:name="world.libertaria.mercury.TEST" />
-                <data android:mimeType="text/plain" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="world.libertaria.mercury.example.ReceiverActivity">
+            <intent-filter>
+                <action android:name="world.libertaria.mercury.action.PONG" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
     </application>
-
 </manifest>
