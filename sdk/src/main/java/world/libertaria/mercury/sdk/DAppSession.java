@@ -2,12 +2,29 @@ package world.libertaria.mercury.sdk;
 
 import java.util.List;
 
+import io.reactivex.Completable;
+import io.reactivex.Observable;
+
 public class DAppSession {
-    public List<DAppContact> getContacts() {
+    private final RustAPI rustApi;
+
+    DAppSession(RustAPI rustApi) {
+        this.rustApi = rustApi;
+    }
+
+    public String getSelectedProfileId() {
         throw new UnsupportedOperationException();
     }
 
-    public void initiateContact(String withProfileId) {
+    public Observable<List<DAppContact>> getContacts() {
+        throw new UnsupportedOperationException();
+    }
+
+    public Observable<List<DAppContact>> getContacts(String profileId) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Completable initiateContact(String withProfileId) {
         throw new UnsupportedOperationException();
     }
 

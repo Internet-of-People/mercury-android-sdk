@@ -1,14 +1,14 @@
 package world.libertaria.mercury.example;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import java.util.UUID;
-import java.util.concurrent.Future;
 
+import world.libertaria.mercury.sdk.DAppContact;
 import world.libertaria.mercury.sdk.DAppEndpoint;
-import world.libertaria.mercury.sdk.DAppSession;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -18,14 +18,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Log.d(TAG, "Initialising endpoint");
-        Future<DAppSession> dAppSessionFuture = endpoint.connect(UUID.randomUUID());
-
-        while (!dAppSessionFuture.isDone()) {
-            Log.d(TAG, "Sending ping...");
-            //endpoint.sendTestPing(); TODO
-        }
     }
 
     @Override
@@ -34,9 +26,25 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onPause");
     }
 
+    @SuppressLint("CheckResult")
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(TAG, "onResume");
+
+        Log.d(TAG, "Initialising endpoint");
+
+        endpoint.getSession(UUID.randomUUID()).subscribe(dAppSession -> {
+            Log.d(TAG, String.format("Got session with profile %s", dAppSession.getSelectedProfileId()));
+
+            dAppSession.getContacts().subscribe(dAppContacts -> {
+                for (DAppContact dAppContact : dAppContacts) {
+                    Log.d(TAG, String.format("Contact: %s", dAppContact.getProfileId()));
+                }
+            });
+
+            //Log.d(TAG, "Sending ping...");
+            //endpoint.sendTestPing();
+        }, Throwable::printStackTrace);
     }
 }

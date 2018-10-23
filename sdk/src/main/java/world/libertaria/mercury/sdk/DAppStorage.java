@@ -1,19 +1,18 @@
 package world.libertaria.mercury.sdk;
 
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+
 public class DAppStorage<K, V> {
-    /*public Optional<V> get(K key) {
+    public Maybe<V> get(K key) {
         throw new UnsupportedOperationException();
     }
 
-    public Map<K, Optional<V>> getAll(K... keys) {
+    public Single<Boolean> put(K key, V value) {
         throw new UnsupportedOperationException();
     }
 
-    public boolean put(K key, V value) {
+    public Single<Boolean> remove(K key) {
         throw new UnsupportedOperationException();
     }
-
-    public boolean remove(K key) {
-        throw new UnsupportedOperationException();
-    }*/
 }
