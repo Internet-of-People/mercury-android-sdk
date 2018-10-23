@@ -14,12 +14,13 @@
         <activity android:name="world.libertaria.mercury.example.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name="world.libertaria.mercury.example.ReceiverActivity">
+        <activity
+            android:name=".ReceiverActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="world.libertaria.mercury.action.PONG" />
                 <category android:name="android.intent.category.DEFAULT" />

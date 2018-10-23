@@ -1,10 +1,7 @@
 package world.libertaria.mercury.sdk;
 
-import java.util.Map;
-import java.util.Optional;
-
 public class DAppStorage<K, V> {
-    public Optional<V> get(K key) {
+    /*public Optional<V> get(K key) {
         throw new UnsupportedOperationException();
     }
 
@@ -18,5 +15,5 @@ public class DAppStorage<K, V> {
 
     public boolean remove(K key) {
         throw new UnsupportedOperationException();
-    }
+    }*/
 }

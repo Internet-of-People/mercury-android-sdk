@@ -14,6 +14,5 @@ public class RustAPI {
     }
 
     public void jniPing() {
-
     }
 }
