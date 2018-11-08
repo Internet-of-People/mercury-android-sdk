@@ -20,6 +20,7 @@ public class DAppEndpoint {
         return Single.fromFuture(executor.submit(() -> {
             Log.d(TAG, String.format("Connected with app %s", applicationId));
             session = new DAppSession(rustApi);
+            session.connectToSocket();
             return session;
         }));
     }

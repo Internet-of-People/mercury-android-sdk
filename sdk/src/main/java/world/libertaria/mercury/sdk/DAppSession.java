@@ -12,6 +12,10 @@ public class DAppSession {
         this.rustApi = rustApi;
     }
 
+    public void connectToSocket() {
+
+    }
+
     public String getSelectedProfileId() {
         throw new UnsupportedOperationException();
     }

@@ -1,5 +1,6 @@
 package world.libertaria.mercury.sdk;
 
+import java.io.IOException;
 import java.util.List;
 
 public class RustAPI {
@@ -9,12 +10,15 @@ public class RustAPI {
 
     private static native void nstop();
 
+
     public void sendMessage(String message) {
         nsendMessage(message);
     }
 
-    void start() {
+    void start() throws IOException {
         nstart();
+
+
     }
 
     void stop() {
@@ -27,5 +31,9 @@ public class RustAPI {
 
     public List<DAppContact> getContacts(String profileId) {
         throw new UnsupportedOperationException();
+    }
+
+    private synchronized void writeSocket() {
+        // TODO
     }
 }
