@@ -1,2 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="world.libertaria.mercury.sdk" />
+    package="world.libertaria.mercury.sdk">
+
+    <application>
+        <activity
+            android:name=".NotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="world.libertaria.mercury.notification.PAIRING_RESPONSE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/json" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

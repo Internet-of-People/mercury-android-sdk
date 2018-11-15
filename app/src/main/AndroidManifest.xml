@@ -17,14 +17,5 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".ReceiverActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="world.libertaria.mercury.action.PONG" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
     </application>
 </manifest>

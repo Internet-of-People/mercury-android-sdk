@@ -1,38 +1,25 @@
 package world.libertaria.mercury.sdk;
 
-import java.util.List;
-
-import io.reactivex.Completable;
-import io.reactivex.Observable;
-
 public class DAppSession {
-    private final RustAPI rustApi;
+    private final String sessionId;
+    private final String profileId;
+    private final String applicationId;
 
-    DAppSession(RustAPI rustApi) {
-        this.rustApi = rustApi;
+    public DAppSession(String sessionId, String profileId, String applicationId) {
+        this.sessionId = sessionId;
+        this.profileId = profileId;
+        this.applicationId = applicationId;
     }
 
-    public void connectToSocket() {
-
+    public String getSessionId() {
+        return sessionId;
     }
 
-    public String getSelectedProfileId() {
-        throw new UnsupportedOperationException();
+    public String getProfileId() {
+        return profileId;
     }
 
-    public Observable<List<DAppContact>> getContacts() {
-        throw new UnsupportedOperationException();
-    }
-
-    public Observable<List<DAppContact>> getContacts(String profileId) {
-        throw new UnsupportedOperationException();
-    }
-
-    public Completable initiateContact(String withProfileId) {
-        throw new UnsupportedOperationException();
-    }
-
-    public DAppStorage getStorage() {
-        throw new UnsupportedOperationException();
+    public String getApplicationId() {
+        return applicationId;
     }
 }

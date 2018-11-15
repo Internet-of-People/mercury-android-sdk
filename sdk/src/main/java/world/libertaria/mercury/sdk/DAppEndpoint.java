@@ -2,41 +2,100 @@ package world.libertaria.mercury.sdk;
 
 import android.util.Log;
 
-import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Completable;
-import io.reactivex.Single;
+import java9.util.concurrent.CompletableFuture;
+import world.libertaria.mercury.sdk.api.GetContactsByProfileRequest;
+import world.libertaria.mercury.sdk.api.GetContactsByProfileResult;
+import world.libertaria.mercury.sdk.api.GetSelectedProfileRequest;
+import world.libertaria.mercury.sdk.api.GetSelectedProfileResult;
+import world.libertaria.mercury.sdk.api.GetSessionRequest;
+import world.libertaria.mercury.sdk.api.GetSessionResult;
 
 public class DAppEndpoint {
     private static final String TAG = DAppEndpoint.class.getSimpleName();
-    private static final RustAPI rustApi = new RustAPI();
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private DAppSession session;
+    private static final int SOCKET_TIMEOUT = 10;
+    private SocketConnector socketConnector;
+    private CountDownLatch waitForSocketConnectionLatch = new CountDownLatch(1);
+    private DAppSession currentSession;
 
-    public Single<DAppSession> getSession(UUID applicationId) {
-        Log.d(TAG, String.format("Connecting with app %s", applicationId));
-        return Single.fromFuture(executor.submit(() -> {
-            Log.d(TAG, String.format("Connected with app %s", applicationId));
-            session = new DAppSession(rustApi);
-            session.connectToSocket();
-            return session;
-        }));
+    public void connect() {
+        Log.d(TAG, "Starting socket connector thread");
+
+        socketConnector = new SocketConnector();
+
+        Log.d(TAG, "Starting socket connector thread");
+        socketConnector.connect(() -> {
+            Log.d(TAG, "Socket connected");
+            waitForSocketConnectionLatch.countDown();
+        });
     }
 
-    public Completable disconnect() {
-        Log.d(TAG, "Disconnecting...");
-        session = null;
-
-        throw new UnsupportedOperationException();
+    public void disconnect() {
+        currentSession = null;
+        waitForSocketConnectionLatch = new CountDownLatch(1);
+        socketConnector.disconnect();
     }
 
-    public boolean isConnected() {
-        throw new UnsupportedOperationException();
+    public CompletableFuture<GetSessionResult> getSession(GetSessionRequest request) throws APIException {
+        expectSocket();
+
+        CompletableFuture<GetSessionResult> cf = new CompletableFuture<>();
+
+        Log.d(TAG, String.format("Getting session with app %s", request.getApplicationId()));
+        socketConnector.sendRequestAsync(request, result -> {
+            GetSessionResult sessionResult = (GetSessionResult) result;
+            currentSession = new DAppSession(sessionResult.getSessionId(), sessionResult.getProfileId(), request.getApplicationId());
+            cf.complete(sessionResult);
+        }, GetSessionResult.class);
+
+        return cf;
     }
 
-    public void sendTestPing() {
-        throw new UnsupportedOperationException();
+    public CompletableFuture<GetSelectedProfileResult> getSelectedProfile() throws APIException {
+        expectSocket();
+        expectSession();
+
+        CompletableFuture<GetSelectedProfileResult> cf = new CompletableFuture<>();
+        Log.d(TAG, String.format("Getting selected profile with app %s", currentSession.getApplicationId()));
+
+        socketConnector.sendRequestAsync(
+                new GetSelectedProfileRequest(currentSession.getSessionId()),
+                result -> cf.complete((GetSelectedProfileResult) result),
+                GetSelectedProfileResult.class
+        );
+        return cf;
+    }
+
+    public CompletableFuture<GetContactsByProfileResult> getContactsByProfile() throws APIException {
+        expectSocket();
+        expectSession();
+
+        CompletableFuture<GetContactsByProfileResult> cf = new CompletableFuture<>();
+        Log.d(TAG, String.format("Getting contacts by profile %s with app %s", currentSession.getProfileId(), currentSession.getApplicationId()));
+
+        socketConnector.sendRequestAsync(
+                new GetContactsByProfileRequest(currentSession.getSessionId(), currentSession.getProfileId()),
+                result -> cf.complete((GetContactsByProfileResult) result),
+                GetContactsByProfileResult.class
+        );
+        return cf;
+    }
+
+    private void expectSession() throws APIException {
+        if (currentSession == null) {
+            throw new APIException("Session was expected");
+        }
+    }
+
+    private void expectSocket() {
+        try {
+            if (!waitForSocketConnectionLatch.await(SOCKET_TIMEOUT, TimeUnit.SECONDS)) {
+                throw new APIException("Could not connect to socket, timed out");
+            }
+        } catch (InterruptedException e) {
+            throw new APIException(e);
+        }
     }
 }
