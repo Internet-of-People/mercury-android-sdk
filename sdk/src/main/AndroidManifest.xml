@@ -1,9 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="world.libertaria.mercury.sdk">
-
+    package="global.iop.mercury.sdk">
     <application>
         <activity
-            android:name=".NotificationReceiver"
+            android:name="global.iop.mercury.sdk.NotificationReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="world.libertaria.mercury.notification.PAIRING_RESPONSE" />
