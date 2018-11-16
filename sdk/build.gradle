@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
 
 android {
     compileSdkVersion 28
@@ -7,10 +9,9 @@ android {
         minSdkVersion 22
         targetSdkVersion 28
         versionCode 1
-        versionName "1.0"
+        versionName "0.1-beta"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -37,4 +38,110 @@ dependencies {
     api 'net.sourceforge.streamsupport:android-retrofuture:1.7.0'
     api 'com.fasterxml.jackson.core:jackson-core:2.9.7'
     api 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
+}
+
+// Bintray publising related code below
+ext {
+    bintrayRepo = 'MercurySDK'
+    bintrayName = 'MercurySDK'
+
+    publishedGroupId = 'global.iop.mercury'
+    libraryName = 'MercurySDK'
+    artifact = 'sdk'
+
+    libraryDescription = 'Android library for the Internet of People\'s Mercury network'
+
+    siteUrl = 'https://github.com/Internet-of-People/mercury-android-sdk'
+    gitUrl = 'https://github.com/Internet-of-People/mercury-android-sdk.git'
+
+    libraryVersion = '0.1-beta'
+
+    developerId = 'iop'
+    developerName = 'Internet of People'
+    developerEmail = 'info@iop.global'
+
+    licenseName = 'GNU Lesser General Public License v3.0'
+    licenseUrl = 'https://github.com/Internet-of-People/mercury-android-sdk/blob/master/LICENSE'
+    allLicenses = ['LGPL-3.0']
+}
+
+group = publishedGroupId
+version = libraryVersion
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+            groupId publishedGroupId
+            artifactId artifact
+
+            name libraryName
+            description libraryDescription
+            url siteUrl
+
+            licenses {
+                license {
+                    name licenseName
+                    url licenseUrl
+                }
+            }
+            developers {
+                developer {
+                    id developerId
+                    name developerName
+                    email developerEmail
+                }
+            }
+            scm {
+                connection gitUrl
+                developerConnection gitUrl
+                url siteUrl
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+
+    configurations = ['archives']
+    pkg {
+        repo = bintrayRepo
+        name = bintrayName
+        desc = libraryDescription
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = allLicenses
+        dryRun = false
+        publish = true
+        override = false
+        publicDownloadNumbers = true
+        version {
+            desc = libraryDescription
+        }
+    }
 }
