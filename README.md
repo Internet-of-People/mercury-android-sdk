@@ -1,36 +1,31 @@
-# Mercury Connect SDK
+# Mercury Android SDK
 
-### TODOS
-- should it be thread safe?
-- should it be full async?
-- send message from service to DAppEndpoint without android
-- if the service uses :my_dapp_process, then we can only send global broadcasts
+### What is Mercury?
 
-### MUSTS
+Mercury is a distributed network built on a revolutionary person-to-person protocol and identity model aiming maximal privacy.
 
-user must put these into AndroidManifest.xml:
-```$xml
-<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-<uses-permission android:name="android.permission.INTERNET" />
-<uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+Our goal is to make the Internet ours again by true decentralized secure communication, social networking and enabling peer-to-peer business and apps with no middlemen, even on your phone.
 
-<!-- if needs to check for boot -->
-<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+Mercury is somewhat similar to a cellular mobile network, it provides features like SMS, calls, data connections, push notifications, etc, but
 
-<service
-    android:name=".mercury.connect.sdk.DAppService"
-    android:enabled="true"
-    android:permission="android.permission.BIND_JOB_SERVICE"
-    android:process=":my_dapp_process"
-    android:exported="false" />
+- built as an overlay network on top of any  transport layer (currently Tcp but could use Tor, I2P, mesh, etc) your own “cell tower” can join or leave  the network any time
+- selecting a “provider” is the only trustful part  of the system
+- uses cryptographic keys instead of  phone numbers for p2p encrypted communication, cell/provider and applications use the same kind  of identity
+- user data and calls are encrypted, you cannot  be spied on or be cheated with contact identity
+- you’re free to keep your identity and contacts  moving to another provider or application
+- supports you having different unrelated identities  (family, professional, hobby, etc)  within the system
+- you can restore your identities from a “cold wallet” after lost/broken device
+- the network is extremely resilient, dies only with the last cell
+- built to support any decentralized/distributed application on top
 
-<!-- if needs to check for boot -->
-<receiver
-    android:name=".AndroidOSBroadcastReceiver"
-    android:directBootAware="true">
-    <intent-filter>
-        <action android:name="android.intent.action.BOOT_COMPLETED" />
-        <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED" />
-    </intent-filter>
-</receiver>
-```
+### What is this repository about?
+
+This repository contains the source code of the SDK for Android dApp development. You can use the SDK to interact with the Mercury network.
+
+Note: you need to have the Mercury Connect APP installed on your phone.
+
+### Usage
+
+Add this to your dApp's `build.gradle` file:
+
+`api 'global.iop.mercury:sdk:0.1-beta'`
