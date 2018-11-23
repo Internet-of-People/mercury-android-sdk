@@ -14,102 +14,31 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.HashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
 import global.iop.mercury.sdk.api.SocketRPCRequest;
 import global.iop.mercury.sdk.api.SocketRPCResult;
+import java9.util.concurrent.CompletableFuture;
 import java9.util.function.Consumer;
 
-public class SocketConnector extends Thread {
+class SocketConnector {
     private static final String TAG = SocketConnector.class.getSimpleName();
-    private static final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final JsonFactory jsonFactory = new JsonFactory();
     private final ObjectMapper jsonObjectMapper = new ObjectMapper();
     private final AtomicLong idIndex = new AtomicLong(0);
     private final HashMap<String, WaitingForResult> resultQueue = new HashMap<>();
     private final LocalSocket socket = new LocalSocket();
     private BufferedWriter rustSocketOutputStream;
-    private boolean connected;
-    private Runnable connectedCallback;
-
-    void connect(Runnable connectedCallback) {
-        this.connectedCallback = connectedCallback;
-        start();
-    }
+    private volatile boolean connected;
+    private volatile boolean interrupted;
 
     void disconnect() {
+        interrupted = true;
         resultQueue.clear();
-        interrupt();
     }
 
-    @Override
-    public void run() {
-        if (connectedCallback == null) {
-            throw new Error("invoke 'connect' before starting the connector thread");
-        }
-
-        try {
-            Log.d(TAG, "Connecting to Mercury Socket...");
-            socket.connect(new LocalSocketAddress("/tmp/mercury"));
-            Log.d(TAG, "Connected");
-            connected = true;
-
-            rustSocketOutputStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-            JsonParser jsonParser = jsonFactory.createParser(socket.getInputStream());
-            JsonToken token;
-
-            connectedCallback.run();
-            Log.d(TAG, "Reading socket...");
-            while ((token = jsonParser.nextToken()) != null) {
-                if (Thread.currentThread().isInterrupted()) {
-                    break;
-                }
-
-                switch (token) {
-                    case START_OBJECT:
-                        JsonNode node = jsonObjectMapper.readTree(jsonParser);
-                        if (node.has("id")) { // result
-                            String id = node.get("id").asText();
-                            WaitingForResult waitingForResult = resultQueue.remove(id);
-
-                            if (waitingForResult == null) {
-                                Log.e(TAG, String.format("Got an RPC result with id %s, but it was not requested", id));
-                                continue;
-                            }
-
-                            waitingForResult.resultConsumer.accept(
-                                    jsonObjectMapper.readValue(
-                                            node.asText(),
-                                            waitingForResult.resultClass
-                                    )
-                            );
-                        }
-                        break;
-                }
-            }
-
-            Log.d(TAG, "Socket reading finished");
-        } catch (IOException e) {
-            Log.e(TAG, e.getMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                connected = false;
-                connectedCallback = null;
-                rustSocketOutputStream = null;
-                socket.close();
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage());
-                e.printStackTrace();
-            }
-        }
-    }
-
-    void sendRequestAsync(SocketRPCRequest request, Consumer<SocketRPCResult> consumer, Class<? extends SocketRPCResult> resultClass) throws APIException {
-        executor.submit(() -> {
+    CompletableFuture<Void> sendRequestAsync(SocketRPCRequest request, Consumer<SocketRPCResult> consumer, Class<? extends SocketRPCResult> resultClass) throws APIException {
+        return CompletableFuture.supplyAsync(() -> {
             try {
                 String json = jsonObjectMapper.writeValueAsString(request);
 
@@ -130,6 +59,80 @@ public class SocketConnector extends Thread {
                 Log.e(TAG, e.getMessage());
                 throw new APIException(e);
             }
+
+            return null;
+        });
+    }
+
+    CompletableFuture<LocalSocket> connectToSocket() {
+        return CompletableFuture.supplyAsync(() -> {
+            Log.d(TAG, "Connecting to Mercury Socket...");
+            LocalSocket socket = new LocalSocket();
+
+            try {
+                socket.connect(new LocalSocketAddress("/tmp/mercury"));
+                Log.d(TAG, "Connected");
+                connected = true;
+            } catch (IOException e) {
+                throw new APIException(e);
+            }
+
+            return socket;
+        });
+    }
+
+    CompletableFuture<Void> readSocket(LocalSocket socket) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                rustSocketOutputStream = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+                JsonParser jsonParser = jsonFactory.createParser(socket.getInputStream());
+                JsonToken token;
+
+                Log.d(TAG, "Reading socket...");
+                while ((token = jsonParser.nextToken()) != null) {
+                    if (interrupted) {
+                        break;
+                    }
+
+                    switch (token) {
+                        case START_OBJECT:
+                            JsonNode node = jsonObjectMapper.readTree(jsonParser);
+                            if (node.has("id")) { // result
+                                String id = node.get("id").asText();
+                                WaitingForResult waitingForResult = resultQueue.remove(id);
+
+                                if (waitingForResult == null) {
+                                    Log.e(TAG, String.format("Got an RPC result with id %s, but it was not requested", id));
+                                    continue;
+                                }
+
+                                waitingForResult.resultConsumer.accept(
+                                        jsonObjectMapper.readValue(
+                                                node.asText(),
+                                                waitingForResult.resultClass
+                                        )
+                                );
+                            }
+                            break;
+                    }
+                }
+
+                Log.d(TAG, "Socket reading finished");
+            } catch (IOException e) {
+                Log.e(TAG, e.getMessage());
+                throw new APIException(e);
+            } finally {
+                try {
+                    connected = false;
+                    rustSocketOutputStream = null;
+                    socket.close();
+                } catch (Exception e) {
+                    Log.e(TAG, e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+            return null;
         });
     }
 

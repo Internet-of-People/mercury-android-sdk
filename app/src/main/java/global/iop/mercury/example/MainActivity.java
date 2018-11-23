@@ -13,12 +13,14 @@ import global.iop.mercury.sdk.api.GetSessionRequest;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final DAppEndpoint endpoint = new DAppEndpoint();
+    private DAppEndpoint endpoint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        endpoint = new DAppEndpoint(getApplicationContext());
     }
 
     @Override
@@ -33,19 +35,30 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "onResume");
         Log.d(TAG, "Initialising endpoint");
 
-        endpoint.connect();
-        endpoint.getSession(new GetSessionRequest("app", new ArrayList<>())).thenAccept(session -> {
-            Log.d(TAG, String.format("Got session with profile %s", session.getProfileId()));
+        endpoint.connect().thenApply(aVoid -> {
+            Log.d(TAG, "Connected");
 
-            endpoint.getSelectedProfile().thenAccept(selectedProfile -> {
-                Log.d(TAG, String.format("Selected profile is: %s", selectedProfile.getProfileId()));
+            endpoint.getSession(new GetSessionRequest("app", new ArrayList<>())).thenAccept(session -> {
+                Log.d(TAG, String.format("Got session with profile %s", session.getProfileId()));
 
-                endpoint.getContactsByProfile().thenAccept(contacts -> {
-                    Log.d(TAG, String.format("Got contacts: %s, disconnecting...", Arrays.toString(Objects.requireNonNull(contacts.getContacts().toArray()))));
-                    endpoint.disconnect();
-                    Log.d(TAG, "Disconnected");
+                endpoint.getSelectedProfile().thenAccept(selectedProfile -> {
+                    Log.d(TAG, String.format("Selected profile is: %s", selectedProfile.getProfileId()));
+
+                    endpoint.getContactsByProfile().thenAccept(contacts -> {
+                        Log.d(TAG, String.format("Got contacts: %s, disconnecting...", Arrays.toString(Objects.requireNonNull(contacts.getContacts().toArray()))));
+                        endpoint.disconnect();
+                        Log.d(TAG, "Disconnected");
+                    });
                 });
             });
-        });
+
+            return null;
+        }).handle((o, throwable) -> {
+            if (throwable != null) {
+                throw new RuntimeException(throwable);
+            }
+
+            return o;
+        }).join();
     }
 }

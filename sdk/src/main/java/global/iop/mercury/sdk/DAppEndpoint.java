@@ -1,5 +1,8 @@
 package global.iop.mercury.sdk;
 
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.util.concurrent.CountDownLatch;
@@ -20,16 +23,28 @@ public class DAppEndpoint {
     private CountDownLatch waitForSocketConnectionLatch = new CountDownLatch(1);
     private DAppSession currentSession;
 
-    public void connect() {
+    public DAppEndpoint(Context context) {
+        PackageManager mPm = context.getPackageManager();
+        PackageInfo info;
+        try {
+            info = mPm.getPackageInfo("global.iop.mercury.connect", 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            throw new APIException(e);
+        }
+
+        if (info == null) {
+            throw new APIException("Mercury Connect is not installed");
+        }
+    }
+
+    public CompletableFuture<Void> connect() {
         Log.d(TAG, "Starting socket connector thread");
 
         socketConnector = new SocketConnector();
-
-        Log.d(TAG, "Starting socket connector thread");
-        socketConnector.connect(() -> {
-            Log.d(TAG, "Socket connected");
-            waitForSocketConnectionLatch.countDown();
-        });
+        return socketConnector
+                .connectToSocket()
+                .thenAcceptAsync(socketConnector::readSocket)
+                .thenRunAsync(waitForSocketConnectionLatch::countDown);
     }
 
     public void disconnect() {
